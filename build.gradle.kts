@@ -3,6 +3,7 @@ import nebula.plugin.contacts.ContactsExtension
 
 plugins {
     `java-library`
+    kotlin("jvm") version "1.7.22"
 
     id("nebula.release") version "16.0.0"
 
@@ -58,7 +59,11 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:latest.release")
     implementation(platform("org.openrewrite.recipe:rewrite-recipe-bom:${rewriteBomVersion}"))
 
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
     implementation("org.openrewrite:rewrite-java")
+    implementation("org.openrewrite:rewrite-maven")
     runtimeOnly("org.openrewrite:rewrite-java-17")
     // Need to have a slf4j binding to see any output enabled from the parser.
     runtimeOnly("ch.qos.logback:logback-classic:1.2.+")
@@ -82,6 +87,13 @@ tasks.withType<JavaCompile>().configureEach {
 }
 tasks.named<JavaCompile>("compileJava") {
     options.release.set(8)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict", "-Xcontext-receivers")
+        jvmTarget = "17"
+    }
 }
 
 configure<ContactsExtension> {
